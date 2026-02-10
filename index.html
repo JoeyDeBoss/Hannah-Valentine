@@ -217,7 +217,6 @@
       z-index: 5;
     }
 
-    /* Main Yes/No buttons */
     .buttons button{
       border:0;
       padding: 14px 18px;
@@ -297,62 +296,28 @@
       100%{ transform: translateY(-260px) scale(1.35); opacity:0; }
     }
 
-    /* Clickable signature button (bottom-left) */
+    /* Clickable signature button */
     .signature{
       position: absolute;
       left: 16px;
       bottom: 16px;
       z-index: 20;
-
       padding: 10px 14px;
       border-radius: 999px;
-
       font-weight: 900;
       letter-spacing: .2px;
       font-size: 14px;
-
       color: rgba(255,255,255,.92);
       background: rgba(0,0,0,.28);
       border: 1px solid rgba(255,255,255,.14);
       backdrop-filter: blur(10px);
       box-shadow: 0 18px 50px rgba(0,0,0,.25);
-
       cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
       min-width: 0;
     }
     .signature:active{ transform: scale(0.98); }
-
-    /* Popup appears above signature */
-    .popup{
-      position: absolute;
-      left: 16px;
-      bottom: 64px;
-      z-index: 30;
-
-      padding: 10px 14px;
-      border-radius: 999px;
-
-      font-weight: 950;
-      letter-spacing: .3px;
-      font-size: 14px;
-
-      color: rgba(255,255,255,.97);
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 18px 60px rgba(0,0,0,.35);
-
-      opacity: 0;
-      transform: translateY(6px);
-      pointer-events: none;
-      transition: opacity .18s ease, transform .18s ease;
-    }
-    .popup.show{
-      opacity: 1;
-      transform: translateY(0);
-    }
 
     /* Tiny sparkle/heart burst on signature click */
     .mini-burst{
@@ -375,6 +340,84 @@
       100% { transform: translate(-50%, -50%) scale(1.15) translate(var(--dx), var(--dy)); opacity: 0; }
     }
 
+    /* 🔥 YOU FOOL FIREWORK OVERLAY */
+    .fool-overlay{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 9998;
+      transition: opacity .18s ease;
+      background:
+        radial-gradient(900px 500px at 50% 50%, rgba(255,122,217,.12), transparent 60%),
+        radial-gradient(700px 420px at 50% 55%, rgba(255,179,236,.10), transparent 65%);
+    }
+    .fool-overlay.show{ opacity: 1; }
+
+    .fool-text{
+      font-size: clamp(34px, 6vw, 72px);
+      font-weight: 1000;
+      letter-spacing: .6px;
+      text-align: center;
+      color: rgba(255,255,255,.95);
+      text-shadow:
+        0 0 18px rgba(255,122,217,.35),
+        0 0 42px rgba(255,179,236,.22),
+        0 20px 70px rgba(0,0,0,.55);
+      transform: scale(.92);
+      opacity: 0;
+    }
+    .fool-overlay.show .fool-text{
+      animation: foolPop 1100ms ease-out forwards;
+    }
+    @keyframes foolPop{
+      0%   { opacity: 0; transform: scale(.85); }
+      14%  { opacity: 1; transform: scale(1.03); }
+      100% { opacity: 0; transform: scale(1.00); }
+    }
+
+    .fool-burst{
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .fool-particle{
+      position: absolute;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: firework 950ms cubic-bezier(.2,.8,.2,1) forwards;
+      filter: drop-shadow(0 14px 22px rgba(0,0,0,.30));
+    }
+    @keyframes firework{
+      0%   { transform: translate(-50%, -50%) scale(.6) translate(0,0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.25) translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+    }
+
+    /* Screen shake */
+    .shake{
+      animation: screenShake 520ms ease-in-out both;
+    }
+    @keyframes screenShake{
+      0%   { transform: translate3d(0,0,0); }
+      10%  { transform: translate3d(-3px, 2px, 0); }
+      20%  { transform: translate3d(4px, -2px, 0); }
+      30%  { transform: translate3d(-5px, -1px, 0); }
+      40%  { transform: translate3d(5px, 3px, 0); }
+      50%  { transform: translate3d(-4px, 2px, 0); }
+      60%  { transform: translate3d(4px, -3px, 0); }
+      70%  { transform: translate3d(-3px, -2px, 0); }
+      80%  { transform: translate3d(3px, 2px, 0); }
+      90%  { transform: translate3d(-2px, -1px, 0); }
+      100% { transform: translate3d(0,0,0); }
+    }
+
     @media (min-width: 900px){
       .buttons{ height: 170px; }
       #yesBtn{ left: 38%; }
@@ -383,9 +426,10 @@
     }
 
     @media (prefers-reduced-motion: reduce){
-      .sparkle, .title, .typewriter, .heart, .fh, .sky-heart, .mini-particle{
+      .sparkle, .title, .typewriter, .heart, .fh, .sky-heart, .mini-particle, .fool-particle, .fool-text{
         animation: none !important;
       }
+      .fool-overlay{ transition: none !important; }
       .typewriter{ width: auto; border-right: none; }
     }
   </style>
@@ -395,7 +439,12 @@
   <div class="sparkle"></div>
   <div id="skyHearts" aria-hidden="true"></div>
 
-  <main class="card">
+  <!-- Firework overlay -->
+  <div class="fool-overlay" id="foolOverlay" aria-hidden="true">
+    <div class="fool-text">YOU FOOL 🤡</div>
+  </div>
+
+  <main class="card" id="card">
     <div class="ribbon"></div>
 
     <div class="typewrap">
@@ -420,7 +469,6 @@
         </div>
 
         <button class="signature" id="signatureBtn" type="button">From Joey.</button>
-        <div class="popup" id="foolPopup" aria-live="polite">You Fool 🤡</div>
       </div>
 
       <div class="love-screen" id="loveScreen">
@@ -441,14 +489,14 @@
     const floatingHearts = document.getElementById('floatingHearts');
     const skyHearts = document.getElementById('skyHearts');
     const title = document.getElementById('title');
-
     const signatureBtn = document.getElementById('signatureBtn');
-    const foolPopup = document.getElementById('foolPopup');
+    const foolOverlay = document.getElementById('foolOverlay');
+    const card = document.getElementById('card');
 
-    // Popup triggers only after clicking NO many times
+    // ====== SETTINGS ======
     let noClicks = 0;
-    const NO_CLICK_LIMIT = 8;   // change to 10 if you want
-    let popupShown = false;
+    const NO_CLICK_LIMIT = 8;   // <-- change this (e.g., 10)
+    let fired = false;
 
     function rand(min, max){ return Math.random() * (max - min) + min; }
 
@@ -457,7 +505,7 @@
       title.style.setProperty('--chars', (raw.length + 1) + 'ch');
     }
 
-    /* ---- Tiny burst effect ---- */
+    // ====== Mini burst effect for signature ======
     function miniBurstAt(x, y) {
       const container = document.createElement('div');
       container.className = 'mini-burst';
@@ -474,7 +522,7 @@
         p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
         const angle = (Math.PI * 2) * (i / count) + (Math.random() * 0.35);
-        const dist  = 14 + Math.random() * 14; // tiny radius
+        const dist  = 14 + Math.random() * 14;
         const dx = Math.cos(angle) * dist;
         const dy = Math.sin(angle) * dist;
 
@@ -494,11 +542,11 @@
     function burstFromElement(el) {
       const r = el.getBoundingClientRect();
       const x = r.left + r.width / 2;
-      const y = r.top + 6; // near the top of the button
+      const y = r.top + 6;
       miniBurstAt(x, y);
     }
 
-    /* ---- Signature toggle + burst ---- */
+    // Signature toggle From Joey. <-> Daddy + mini burst
     if (signatureBtn) {
       const originalText = "From Joey.";
       const altText = "Daddy";
@@ -511,7 +559,7 @@
       });
     }
 
-    /* ---- Button positioning and behavior ---- */
+    // ====== YES/NO logic ======
     let yesScale = 1;
     function setButtonStart(){
       yesScale = 1;
@@ -549,18 +597,27 @@
       noBtn.style.transform = "translate(0,0)";
     }
 
-    function showFoolPopup(){
-      if (!foolPopup) return;
-      foolPopup.classList.add('show');
-      setTimeout(() => foolPopup.classList.remove('show'), 2000);
-    }
+    // ====== Fix: make No clickable enough to reach 8 clicks ======
+    // On desktop, we delay the dodge slightly on hover so clicks can happen.
+    let dodgeTimer = null;
 
-    // Desktop hover: dodge only (does NOT count)
-    noBtn.addEventListener('mouseover', () => {
-      moveNoButton();
+    noBtn.addEventListener('mouseenter', () => {
+      // delay dodge so user can actually click it
+      dodgeTimer = setTimeout(() => {
+        moveNoButton();
+        dodgeTimer = null;
+      }, 220);
     });
 
-    // Click: count toward popup + dodge + grow
+    noBtn.addEventListener('mouseleave', () => {
+      if (dodgeTimer) { clearTimeout(dodgeTimer); dodgeTimer = null; }
+    });
+
+    noBtn.addEventListener('mousedown', () => {
+      if (dodgeTimer) { clearTimeout(dodgeTimer); dodgeTimer = null; }
+    });
+
+    // On click: count, move, grow, and trigger firework at limit
     noBtn.addEventListener('click', (e) => {
       e.preventDefault();
 
@@ -568,13 +625,27 @@
       moveNoButton();
       growYesButton();
 
-      if (!popupShown && noClicks >= NO_CLICK_LIMIT) {
-        popupShown = true;
-        showFoolPopup();
+      if (!fired && noClicks >= NO_CLICK_LIMIT) {
+        fired = true;
+        triggerYouFoolFirework();
       }
     });
 
-    /* ---- YES click ---- */
+    // Mobile friendliness: ensure tap triggers immediately
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+
+      noClicks++;
+      moveNoButton();
+      growYesButton();
+
+      if (!fired && noClicks >= NO_CLICK_LIMIT) {
+        fired = true;
+        triggerYouFoolFirework();
+      }
+    }, { passive:false });
+
+    // ====== YES click ======
     function popHearts(count=28){
       const hearts = ["💖","💘","💗","💞","💕","✨","💝","💓"];
       for(let i=0;i<count;i++){
@@ -594,12 +665,60 @@
       loveScreen.style.display = "block";
       popHearts(30);
 
-      // optional reset
+      // reset for replays (optional)
       noClicks = 0;
-      popupShown = false;
+      fired = false;
     });
 
-    /* ---- Full-screen drifting hearts ---- */
+    // ====== YOU FOOL firework + shake ======
+    function triggerYouFoolFirework() {
+      // shake the whole card
+      card.classList.remove('shake');
+      void card.offsetWidth; // restart animation
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 600);
+
+      // show overlay text
+      foolOverlay.classList.add('show');
+
+      // create burst particles from center of screen
+      const burst = document.createElement('div');
+      burst.className = 'fool-burst';
+      document.body.appendChild(burst);
+
+      const emojis = ["🎆","✨","💥","💖","💘","💗","💞","💕"];
+      const count = 42;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'fool-particle';
+        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        const angle = rand(0, Math.PI * 2);
+        const dist  = rand(80, 220);
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+
+        p.style.setProperty('--dx', dx.toFixed(1) + 'px');
+        p.style.setProperty('--dy', dy.toFixed(1) + 'px');
+        p.style.setProperty('--rot', rand(-140, 140).toFixed(0) + 'deg');
+        p.style.fontSize = rand(16, 34).toFixed(0) + 'px';
+        p.style.left = '0px';
+        p.style.top  = '0px';
+        p.style.animationDuration = rand(800, 1150).toFixed(0) + 'ms';
+
+        burst.appendChild(p);
+      }
+
+      // hide overlay and cleanup
+      setTimeout(() => {
+        foolOverlay.classList.remove('show');
+      }, 1150);
+
+      setTimeout(() => burst.remove(), 1400);
+    }
+
+    // ====== Full-screen drifting hearts ======
     const skyEmojis = ["💖","💗","💘","💞","💕","✨","💓","💝"];
     function spawnSkyHeart(){
       const el = document.createElement('div');
