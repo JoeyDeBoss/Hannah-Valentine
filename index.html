@@ -208,7 +208,7 @@
       margin: 8px 0 18px;
     }
 
-    /* Buttons area prevents overlap and ensures click */
+    /* Buttons area */
     .buttons{
       position:relative;
       width: 100%;
@@ -217,7 +217,8 @@
       z-index: 5;
     }
 
-    button{
+    /* Main Yes/No buttons */
+    .buttons button{
       border:0;
       padding: 14px 18px;
       border-radius: 999px;
@@ -232,7 +233,7 @@
       min-width: 150px;
       pointer-events:auto;
     }
-    button:active{ transform: scale(.98); }
+    .buttons button:active{ transform: scale(.98); }
 
     #yesBtn, #noBtn{
       position:absolute;
@@ -296,23 +297,32 @@
       100%{ transform: translateY(-260px) scale(1.35); opacity:0; }
     }
 
-    /* Permanent bottom-left signature */
+    /* Clickable signature button (bottom-left) */
     .signature{
       position: absolute;
       left: 16px;
       bottom: 16px;
       z-index: 20;
+
       padding: 10px 14px;
       border-radius: 999px;
+
       font-weight: 900;
       letter-spacing: .2px;
       font-size: 14px;
+
       color: rgba(255,255,255,.92);
       background: rgba(0,0,0,.28);
       border: 1px solid rgba(255,255,255,.14);
       backdrop-filter: blur(10px);
       box-shadow: 0 18px 50px rgba(0,0,0,.25);
+
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      min-width: 0;
     }
+    .signature:active{ transform: scale(0.98); }
 
     /* Popup appears above signature */
     .popup{
@@ -320,16 +330,20 @@
       left: 16px;
       bottom: 64px;
       z-index: 30;
+
       padding: 10px 14px;
       border-radius: 999px;
+
       font-weight: 950;
       letter-spacing: .3px;
       font-size: 14px;
+
       color: rgba(255,255,255,.97);
       background: rgba(0,0,0,.45);
       border: 1px solid rgba(255,255,255,.18);
       backdrop-filter: blur(10px);
       box-shadow: 0 18px 60px rgba(0,0,0,.35);
+
       opacity: 0;
       transform: translateY(6px);
       pointer-events: none;
@@ -340,15 +354,36 @@
       transform: translateY(0);
     }
 
+    /* Tiny sparkle/heart burst on signature click */
+    .mini-burst{
+      position: fixed;
+      left: 0; top: 0;
+      width: 0; height: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .mini-particle{
+      position: absolute;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: miniPop 750ms ease-out forwards;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.25));
+    }
+    @keyframes miniPop{
+      0%   { transform: translate(-50%, -50%) scale(.5) translate(0,0); opacity: 0; }
+      12%  { opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.15) translate(var(--dx), var(--dy)); opacity: 0; }
+    }
+
     @media (min-width: 900px){
       .buttons{ height: 170px; }
       #yesBtn{ left: 38%; }
       #noBtn{ left: 62%; }
-      button{ font-size: 18px; padding: 16px 22px; min-width: 170px; }
+      .buttons button{ font-size: 18px; padding: 16px 22px; min-width: 170px; }
     }
 
     @media (prefers-reduced-motion: reduce){
-      .sparkle, .title, .typewriter, .heart, .fh, .sky-heart{
+      .sparkle, .title, .typewriter, .heart, .fh, .sky-heart, .mini-particle{
         animation: none !important;
       }
       .typewriter{ width: auto; border-right: none; }
@@ -358,8 +393,6 @@
 
 <body>
   <div class="sparkle"></div>
-
-  <!-- drifting hearts layer -->
   <div id="skyHearts" aria-hidden="true"></div>
 
   <main class="card">
@@ -386,8 +419,7 @@
           <button id="noBtn" type="button">No 🙈</button>
         </div>
 
-        <!-- Permanent signature + popup -->
-        <div class="signature">From Joey.</div>
+        <button class="signature" id="signatureBtn" type="button">From Joey.</button>
         <div class="popup" id="foolPopup" aria-live="polite">You Fool 🤡</div>
       </div>
 
@@ -410,8 +442,10 @@
     const skyHearts = document.getElementById('skyHearts');
     const title = document.getElementById('title');
 
-    // Popup: triggers only after clicking NO many times
+    const signatureBtn = document.getElementById('signatureBtn');
     const foolPopup = document.getElementById('foolPopup');
+
+    // Popup triggers only after clicking NO many times
     let noClicks = 0;
     const NO_CLICK_LIMIT = 8;   // change to 10 if you want
     let popupShown = false;
@@ -423,6 +457,61 @@
       title.style.setProperty('--chars', (raw.length + 1) + 'ch');
     }
 
+    /* ---- Tiny burst effect ---- */
+    function miniBurstAt(x, y) {
+      const container = document.createElement('div');
+      container.className = 'mini-burst';
+      container.style.left = x + 'px';
+      container.style.top  = y + 'px';
+      document.body.appendChild(container);
+
+      const emojis = ["✨","💖","💘","💗","💞","💕"];
+      const count = 10;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'mini-particle';
+        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        const angle = (Math.PI * 2) * (i / count) + (Math.random() * 0.35);
+        const dist  = 14 + Math.random() * 14; // tiny radius
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+
+        p.style.setProperty('--dx', dx.toFixed(1) + 'px');
+        p.style.setProperty('--dy', dy.toFixed(1) + 'px');
+        p.style.fontSize = (14 + Math.random() * 8).toFixed(0) + 'px';
+        p.style.left = '0px';
+        p.style.top  = '0px';
+        p.style.animationDuration = (650 + Math.random() * 220).toFixed(0) + 'ms';
+
+        container.appendChild(p);
+      }
+
+      setTimeout(() => container.remove(), 1000);
+    }
+
+    function burstFromElement(el) {
+      const r = el.getBoundingClientRect();
+      const x = r.left + r.width / 2;
+      const y = r.top + 6; // near the top of the button
+      miniBurstAt(x, y);
+    }
+
+    /* ---- Signature toggle + burst ---- */
+    if (signatureBtn) {
+      const originalText = "From Joey.";
+      const altText = "Daddy";
+      let toggled = false;
+
+      signatureBtn.addEventListener('click', () => {
+        burstFromElement(signatureBtn);
+        toggled = !toggled;
+        signatureBtn.textContent = toggled ? altText : originalText;
+      });
+    }
+
+    /* ---- Button positioning and behavior ---- */
     let yesScale = 1;
     function setButtonStart(){
       yesScale = 1;
@@ -440,7 +529,6 @@
     function growYesButton(){
       yesScale = Math.min(1.55, yesScale + 0.06);
       yesBtn.style.transform = `translate(-50%,-50%) scale(${yesScale})`;
-
       const glow = Math.min(0.35, 0.18 + (yesScale - 1) * 0.35);
       yesBtn.style.boxShadow = `0 18px 42px rgba(255,122,217,${glow})`;
     }
@@ -467,12 +555,12 @@
       setTimeout(() => foolPopup.classList.remove('show'), 2000);
     }
 
-    // Desktop hover: dodge only (does NOT count toward popup)
+    // Desktop hover: dodge only (does NOT count)
     noBtn.addEventListener('mouseover', () => {
       moveNoButton();
     });
 
-    // Click: counts toward popup + dodge + grow
+    // Click: count toward popup + dodge + grow
     noBtn.addEventListener('click', (e) => {
       e.preventDefault();
 
@@ -486,7 +574,7 @@
       }
     });
 
-    // Hearts burst on YES
+    /* ---- YES click ---- */
     function popHearts(count=28){
       const hearts = ["💖","💘","💗","💞","💕","✨","💝","💓"];
       for(let i=0;i<count;i++){
@@ -506,12 +594,12 @@
       loveScreen.style.display = "block";
       popHearts(30);
 
-      // optional reset for replays
+      // optional reset
       noClicks = 0;
       popupShown = false;
     });
 
-    // Full-screen drifting hearts generator
+    /* ---- Full-screen drifting hearts ---- */
     const skyEmojis = ["💖","💗","💘","💞","💕","✨","💓","💝"];
     function spawnSkyHeart(){
       const el = document.createElement('div');
