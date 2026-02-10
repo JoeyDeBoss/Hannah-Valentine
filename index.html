@@ -15,6 +15,9 @@
       --glass: rgba(255,255,255,.10);
       --glass2: rgba(255,255,255,.18);
       --shadow: 0 20px 60px rgba(0,0,0,.45);
+
+      /* NEW: how long the YOU FOOL overlay should hang around */
+      --foolDuration: 1800ms;
     }
 
     *{ box-sizing:border-box; }
@@ -368,13 +371,16 @@
         0 20px 70px rgba(0,0,0,.55);
       transform: scale(.92);
       opacity: 0;
+      padding: 0 18px;
     }
+    /* NEW: match duration to --foolDuration */
     .fool-overlay.show .fool-text{
-      animation: foolPop 1100ms ease-out forwards;
+      animation: foolPop var(--foolDuration) ease-out forwards;
     }
     @keyframes foolPop{
-      0%   { opacity: 0; transform: scale(.85); }
-      14%  { opacity: 1; transform: scale(1.03); }
+      0%   { opacity: 0; transform: scale(.82); }
+      12%  { opacity: 1; transform: scale(1.04); }
+      78%  { opacity: 1; transform: scale(1.00); }
       100% { opacity: 0; transform: scale(1.00); }
     }
 
@@ -391,7 +397,7 @@
       position: absolute;
       transform: translate(-50%, -50%);
       opacity: 0;
-      animation: firework 950ms cubic-bezier(.2,.8,.2,1) forwards;
+      animation: firework 1250ms cubic-bezier(.2,.8,.2,1) forwards;
       filter: drop-shadow(0 14px 22px rgba(0,0,0,.30));
     }
     @keyframes firework{
@@ -441,7 +447,7 @@
 
   <!-- Firework overlay -->
   <div class="fool-overlay" id="foolOverlay" aria-hidden="true">
-    <div class="fool-text">YOU FOOL 🤡</div>
+    <div class="fool-text" id="foolText">YOU FOOL 🤡</div>
   </div>
 
   <main class="card" id="card">
@@ -491,12 +497,24 @@
     const title = document.getElementById('title');
     const signatureBtn = document.getElementById('signatureBtn');
     const foolOverlay = document.getElementById('foolOverlay');
+    const foolText = document.getElementById('foolText');
     const card = document.getElementById('card');
 
     // ====== SETTINGS ======
     let noClicks = 0;
-    const NO_CLICK_LIMIT = 8;   // <-- change this (e.g., 10)
-    let fired = false;
+    const NO_CLICK_LIMIT = 8; // triggers at 8 clicks
+    const FOOL_DURATION_MS = 1800; // requested timeout
+    const FOOL_MESSAGES = [
+      "YOU FOOL 🤡",              // always first
+      "Absolutely not 🙅‍♀️",
+      "Nope 😌",
+      "Try again 😂",
+      "Not a chance 💅",
+      "Nice try 😭"
+    ];
+
+    let lastFoolAt = 0;
+    let foolTriggerCount = 0; // controls message rotation
 
     function rand(min, max){ return Math.random() * (max - min) + min; }
 
@@ -597,53 +615,101 @@
       noBtn.style.transform = "translate(0,0)";
     }
 
-    // ====== Fix: make No clickable enough to reach 8 clicks ======
-    // On desktop, we delay the dodge slightly on hover so clicks can happen.
+    // Allow No to be clickable enough to reach the limit:
+    // (hover dodges after a tiny delay)
     let dodgeTimer = null;
-
     noBtn.addEventListener('mouseenter', () => {
-      // delay dodge so user can actually click it
       dodgeTimer = setTimeout(() => {
         moveNoButton();
         dodgeTimer = null;
       }, 220);
     });
-
     noBtn.addEventListener('mouseleave', () => {
       if (dodgeTimer) { clearTimeout(dodgeTimer); dodgeTimer = null; }
     });
-
     noBtn.addEventListener('mousedown', () => {
       if (dodgeTimer) { clearTimeout(dodgeTimer); dodgeTimer = null; }
     });
 
-    // On click: count, move, grow, and trigger firework at limit
-    noBtn.addEventListener('click', (e) => {
-      e.preventDefault();
+    // ====== YOU FOOL firework + shake (with rotating messages) ======
+    function getFoolMessage() {
+      // Always start with YOU FOOL 🤡
+      if (foolTriggerCount === 0) return FOOL_MESSAGES[0];
+      const rest = FOOL_MESSAGES.slice(1);
+      return rest[(foolTriggerCount - 1) % rest.length];
+    }
 
+    function triggerFoolFirework() {
+      const now = Date.now();
+      if (now - lastFoolAt < FOOL_DURATION_MS) return; // cooldown
+      lastFoolAt = now;
+
+      const msg = getFoolMessage();
+      foolTriggerCount++;
+
+      // set overlay text
+      if (foolText) foolText.textContent = msg;
+
+      // shake the whole card
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 600);
+
+      // show overlay
+      foolOverlay.classList.add('show');
+
+      // create burst particles from center
+      const burst = document.createElement('div');
+      burst.className = 'fool-burst';
+      document.body.appendChild(burst);
+
+      const emojis = ["🎆","✨","💥","💖","💘","💗","💞","💕"];
+      const count = 46;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'fool-particle';
+        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        const angle = rand(0, Math.PI * 2);
+        const dist  = rand(90, 250);
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+
+        p.style.setProperty('--dx', dx.toFixed(1) + 'px');
+        p.style.setProperty('--dy', dy.toFixed(1) + 'px');
+        p.style.setProperty('--rot', rand(-160, 160).toFixed(0) + 'deg');
+        p.style.fontSize = rand(16, 36).toFixed(0) + 'px';
+        p.style.left = '0px';
+        p.style.top  = '0px';
+        p.style.animationDuration = rand(950, 1350).toFixed(0) + 'ms';
+
+        burst.appendChild(p);
+      }
+
+      // hide overlay and cleanup after 1800ms
+      setTimeout(() => {
+        foolOverlay.classList.remove('show');
+      }, FOOL_DURATION_MS);
+
+      setTimeout(() => burst.remove(), FOOL_DURATION_MS + 400);
+    }
+
+    // On click: count, move, grow, trigger fireworks when >= limit
+    function handleNoClick(e){
+      e.preventDefault();
       noClicks++;
       moveNoButton();
       growYesButton();
 
-      if (!fired && noClicks >= NO_CLICK_LIMIT) {
-        fired = true;
-        triggerYouFoolFirework();
+      if (noClicks >= NO_CLICK_LIMIT) {
+        triggerFoolFirework();
       }
-    });
+    }
 
-    // Mobile friendliness: ensure tap triggers immediately
-    noBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-
-      noClicks++;
-      moveNoButton();
-      growYesButton();
-
-      if (!fired && noClicks >= NO_CLICK_LIMIT) {
-        fired = true;
-        triggerYouFoolFirework();
-      }
-    }, { passive:false });
+    noBtn.addEventListener('click', handleNoClick);
+    noBtn.addEventListener('touchstart', handleNoClick, { passive:false });
 
     // ====== YES click ======
     function popHearts(count=28){
@@ -667,56 +733,9 @@
 
       // reset for replays (optional)
       noClicks = 0;
-      fired = false;
+      foolTriggerCount = 0;
+      lastFoolAt = 0;
     });
-
-    // ====== YOU FOOL firework + shake ======
-    function triggerYouFoolFirework() {
-      // shake the whole card
-      card.classList.remove('shake');
-      void card.offsetWidth; // restart animation
-      card.classList.add('shake');
-      setTimeout(() => card.classList.remove('shake'), 600);
-
-      // show overlay text
-      foolOverlay.classList.add('show');
-
-      // create burst particles from center of screen
-      const burst = document.createElement('div');
-      burst.className = 'fool-burst';
-      document.body.appendChild(burst);
-
-      const emojis = ["🎆","✨","💥","💖","💘","💗","💞","💕"];
-      const count = 42;
-
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'fool-particle';
-        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-
-        const angle = rand(0, Math.PI * 2);
-        const dist  = rand(80, 220);
-        const dx = Math.cos(angle) * dist;
-        const dy = Math.sin(angle) * dist;
-
-        p.style.setProperty('--dx', dx.toFixed(1) + 'px');
-        p.style.setProperty('--dy', dy.toFixed(1) + 'px');
-        p.style.setProperty('--rot', rand(-140, 140).toFixed(0) + 'deg');
-        p.style.fontSize = rand(16, 34).toFixed(0) + 'px';
-        p.style.left = '0px';
-        p.style.top  = '0px';
-        p.style.animationDuration = rand(800, 1600).toFixed(0) + 'ms';
-
-        burst.appendChild(p);
-      }
-
-      // hide overlay and cleanup
-      setTimeout(() => {
-        foolOverlay.classList.remove('show');
-      }, 1150);
-
-      setTimeout(() => burst.remove(), 1400);
-    }
 
     // ====== Full-screen drifting hearts ======
     const skyEmojis = ["💖","💗","💘","💞","💕","✨","💓","💝"];
@@ -760,4 +779,3 @@
   </script>
 </body>
 </html>
-
