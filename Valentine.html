@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>For Hannah 💘</title>
+
+  <style>
+    :root{
+      --bg1:#0b1026;
+      --bg2:#2a0b2f;
+      --pink:#ff7ad9;
+      --pink2:#ffb3ec;
+      --white:#ffffff;
+      --glass: rgba(255,255,255,.10);
+      --glass2: rgba(255,255,255,.18);
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--white);
+      overflow:hidden;
+      padding: 16px;
+      background:
+        radial-gradient(1200px 800px at 20% 20%, rgba(255,122,217,.18), transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, rgba(255,179,236,.14), transparent 65%),
+        radial-gradient(800px 600px at 50% 90%, rgba(130,90,255,.10), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    /* dreamy floating particles */
+    .sparkle{
+      position:absolute;
+      inset:-20vh -20vw;
+      pointer-events:none;
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.9), transparent 45%),
+        radial-gradient(2px 2px at 40% 60%, rgba(255,255,255,.7), transparent 45%),
+        radial-gradient(1.5px 1.5px at 70% 30%, rgba(255,255,255,.8), transparent 45%),
+        radial-gradient(1.5px 1.5px at 90% 70%, rgba(255,255,255,.6), transparent 45%),
+        radial-gradient(2px 2px at 25% 85%, rgba(255,255,255,.75), transparent 45%),
+        radial-gradient(1.5px 1.5px at 55% 10%, rgba(255,255,255,.8), transparent 45%);
+      opacity:.55;
+      animation: sparkleDrift 10s ease-in-out infinite alternate;
+      filter: blur(.2px);
+      z-index: 0;
+    }
+    @keyframes sparkleDrift{
+      0%{ transform: translate3d(-1%, -1%, 0) scale(1); }
+      100%{ transform: translate3d(1%, 1%, 0) scale(1.03); }
+    }
+
+    /* ✅ FULL-SCREEN drifting hearts (restored) */
+    #skyHearts{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 1;
+    }
+    .sky-heart{
+      position:absolute;
+      left:0;
+      top:110%;
+      opacity:0;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 12px 20px rgba(0,0,0,.22));
+      animation: skyFloat linear forwards;
+    }
+    @keyframes skyFloat{
+      0%   { transform: translate3d(var(--xStart), 0, 0) rotate(var(--r0)) scale(var(--s)); opacity:0; }
+      12%  { opacity: .9; }
+      100% { transform: translate3d(var(--xEnd), -140svh, 0) rotate(var(--r1)) scale(calc(var(--s) * 1.15)); opacity:0; }
+    }
+
+    .card{
+      width: min(820px, 100%);
+      padding: clamp(18px, 3.6vw, 28px);
+      border-radius: 26px;
+      background: linear-gradient(180deg, var(--glass2), var(--glass));
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(12px);
+      position:relative;
+      overflow:hidden;
+      z-index: 2;
+    }
+
+    .ribbon{
+      position:absolute;
+      top:-90px; right:-90px;
+      width:220px; height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,122,217,.9), rgba(255,122,217,.0) 70%);
+      opacity:.75;
+      transform: rotate(18deg);
+      pointer-events:none;
+    }
+
+    /* Title */
+    .title{
+      text-align:center;
+      margin: 6px 10px 6px;
+      font-size: clamp(30px, 6.5vw, 50px);
+      font-weight: 900;
+      letter-spacing: .4px;
+      line-height: 1.05;
+      background: linear-gradient(90deg, #ffffff, var(--pink2), var(--pink), #ffffff);
+      background-size: 240% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow:
+        0 0 12px rgba(255,122,217,.35),
+        0 0 28px rgba(255,179,236,.22),
+        0 18px 44px rgba(0,0,0,.35);
+      animation: titleShine 3.8s linear infinite, titleGlow 2.4s ease-in-out infinite;
+    }
+    @keyframes titleShine{
+      0%{ background-position: 0% 50%; }
+      100%{ background-position: 100% 50%; }
+    }
+    @keyframes titleGlow{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-1px); }
+    }
+
+    /* Typewriter */
+    .typewrap{ display:flex; justify-content:center; }
+    .typewriter{
+      display:inline-block;
+      white-space:nowrap;
+      overflow:hidden;
+      border-right: 2px solid rgba(255,255,255,.85);
+      width: 0ch;
+      animation: typing 1.5s steps(18, end) forwards, caret 0.8s step-end infinite;
+    }
+    @keyframes typing{
+      from{ width: 0ch; }
+      to{ width: var(--chars, 10ch); }
+    }
+    @keyframes caret{
+      50%{ border-color: transparent; }
+    }
+
+    .subtitle{
+      text-align:center;
+      margin: 0 10px 12px;
+      font-size: clamp(14px, 4vw, 18px);
+      opacity:.9;
+      color: rgba(255,255,255,.85);
+    }
+
+    .heartline{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      margin: 12px 0 18px;
+      opacity:.95;
+    }
+    .heart{
+      width:14px;height:14px;
+      transform: rotate(45deg);
+      background: var(--pink);
+      border-radius: 3px;
+      position:relative;
+      animation: pulse 1.6s ease-in-out infinite;
+      box-shadow: 0 10px 22px rgba(255,122,217,.25);
+    }
+    .heart::before, .heart::after{
+      content:"";
+      width:14px;height:14px;
+      background: var(--pink);
+      border-radius:50%;
+      position:absolute;
+    }
+    .heart::before{ left:-7px; top:0; }
+    .heart::after{ left:0; top:-7px; }
+    .heart:nth-child(2){ animation-delay:.2s; background: var(--pink2); }
+    .heart:nth-child(2)::before, .heart:nth-child(2)::after{ background: var(--pink2); }
+    .heart:nth-child(3){ animation-delay:.4s; }
+    @keyframes pulse{
+      0%,100%{ transform: rotate(45deg) scale(1); }
+      50%{ transform: rotate(45deg) scale(1.25); }
+    }
+
+    /* Stage */
+    .stage{
+      position:relative;
+      margin-top: 10px;
+      border-radius: 22px;
+      background: rgba(0,0,0,.10);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      padding: clamp(14px, 4vw, 22px);
+    }
+
+    .question{
+      text-align:center;
+      font-size: clamp(20px, 5.2vw, 34px);
+      font-weight: 800;
+      margin: 8px 0 18px;
+    }
+
+    /* ✅ Buttons area prevents overlap and ensures click */
+    .buttons{
+      position:relative;
+      width: 100%;
+      height: 190px;
+      touch-action: manipulation;
+      z-index: 5; /* always above visuals */
+    }
+
+    button{
+      border:0;
+      padding: 14px 18px;
+      border-radius: 999px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      cursor:pointer;
+      font-size: 16px;
+      transition: transform .12s ease, box-shadow .16s ease;
+      box-shadow: 0 14px 30px rgba(0,0,0,.25);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      min-width: 150px;
+      pointer-events:auto;
+    }
+    button:active{ transform: scale(.98); }
+
+    #yesBtn, #noBtn{
+      position:absolute;
+      top: 55%;
+      transform: translate(-50%,-50%);
+    }
+
+    #yesBtn{
+      left: 32%;
+      background: linear-gradient(180deg, #ff7ad9, #ff4fc8);
+      color: #2a0b2f;
+      z-index: 3;
+    }
+
+    #noBtn{
+      left: 68%;
+      background: rgba(255,255,255,.14);
+      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.22);
+      z-index: 2;
+    }
+
+    .love-screen{
+      display:none;
+      text-align:center;
+      padding: 8px 6px 2px;
+    }
+    .love-screen h2{
+      margin: 8px 0 0;
+      font-size: clamp(28px, 6vw, 50px);
+      text-shadow: 0 0 18px rgba(255,122,217,.25);
+    }
+    .love-screen p{
+      margin: 10px auto 0;
+      max-width: 46ch;
+      color: rgba(255,255,255,.86);
+      font-size: clamp(14px, 4vw, 18px);
+      line-height:1.5;
+    }
+
+    /* Hearts burst on YES */
+    .floating-hearts{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 2;
+    }
+    .fh{
+      position:absolute;
+      bottom:-20px;
+      font-size: 18px;
+      opacity: .0;
+      animation: floatUp 3.6s ease-in forwards;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));
+    }
+    @keyframes floatUp{
+      0%{ transform: translateY(0) scale(.9); opacity:0; }
+      15%{ opacity:.9; }
+      100%{ transform: translateY(-260px) scale(1.35); opacity:0; }
+    }
+
+    @media (min-width: 900px){
+      .buttons{ height: 170px; }
+      #yesBtn{ left: 38%; }
+      #noBtn{ left: 62%; }
+      button{ font-size: 18px; padding: 16px 22px; min-width: 170px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .sparkle, .title, .typewriter, .heart, .fh, .sky-heart{
+        animation: none !important;
+      }
+      .typewriter{ width: auto; border-right: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sparkle"></div>
+
+  <!-- ✅ This is the drifting hearts layer -->
+  <div id="skyHearts" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="ribbon"></div>
+
+    <div class="typewrap">
+      <h1 class="title typewriter" id="title">Hannah ✨</h1>
+    </div>
+
+    <p class="subtitle">A tiny, dreamy question from me to you…</p>
+
+    <div class="heartline" aria-hidden="true">
+      <span class="heart"></span>
+      <span class="heart"></span>
+      <span class="heart"></span>
+    </div>
+
+    <section class="stage">
+      <div id="askScreen">
+        <p class="question">Will you be my Valentine? 💘</p>
+
+        <div class="buttons" id="buttonsArea">
+          <button id="yesBtn" type="button">Yes 💞</button>
+          <button id="noBtn" type="button">No 🙈</button>
+        </div>
+      </div>
+
+      <div class="love-screen" id="loveScreen">
+        <h2>I love you princess 💖</h2>
+        <p>You make my world softer, brighter, and more magical. Happy Valentine’s, Hannah. ✨</p>
+      </div>
+
+      <div class="floating-hearts" id="floatingHearts"></div>
+    </section>
+  </main>
+
+  <script>
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const buttonsArea = document.getElementById('buttonsArea');
+    const askScreen = document.getElementById('askScreen');
+    const loveScreen = document.getElementById('loveScreen');
+    const floatingHearts = document.getElementById('floatingHearts');
+    const skyHearts = document.getElementById('skyHearts');
+    const title = document.getElementById('title');
+
+    // Quick sanity log (you can remove later)
+    console.log("Loaded:", { yesBtn, noBtn, buttonsArea, askScreen, loveScreen, skyHearts });
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    // Typewriter character count
+    function setTypewriterChars(){
+      const raw = (title.textContent || "").trim();
+      title.style.setProperty('--chars', (raw.length + 1) + 'ch');
+    }
+
+    // Keep buttons separated at start
+    function setButtonStart(){
+      yesScale = 1;
+
+      yesBtn.style.left = "32%";
+      yesBtn.style.top  = "55%";
+      yesBtn.style.transform = "translate(-50%,-50%) scale(1)";
+      yesBtn.style.boxShadow = "";
+
+      noBtn.style.left  = "68%";
+      noBtn.style.top   = "55%";
+      noBtn.style.transform = "translate(-50%,-50%)";
+    }
+
+    // YES grows subtly when she tries NO
+    let yesScale = 1;
+    function growYesButton(){
+      yesScale = Math.min(1.55, yesScale + 0.06);
+      yesBtn.style.transform = `translate(-50%,-50%) scale(${yesScale})`;
+
+      const glow = Math.min(0.35, 0.18 + (yesScale - 1) * 0.35);
+      yesBtn.style.boxShadow = `0 18px 42px rgba(255,122,217,${glow})`;
+    }
+
+    // Move NO within the buttons area (clamped)
+    function moveNoButton(){
+      const areaRect = buttonsArea.getBoundingClientRect();
+      const btnRect  = noBtn.getBoundingClientRect();
+      const padding = 12;
+
+      const maxX = Math.max(padding, areaRect.width - btnRect.width - padding);
+      const maxY = Math.max(padding, areaRect.height - btnRect.height - padding);
+
+      const x = rand(padding, maxX);
+      const y = rand(padding, maxY);
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+      noBtn.style.transform = "translate(0,0)";
+    }
+
+    // ✅ Most reliable events for PC + mobile
+    noBtn.addEventListener('mouseover', () => { moveNoButton(); growYesButton(); });
+    noBtn.addEventListener('click', (e) => { e.preventDefault(); moveNoButton(); growYesButton(); });
+
+    // Hearts burst on YES
+    function popHearts(count=28){
+      const hearts = ["💖","💘","💗","💞","💕","✨","💝","💓"];
+      for(let i=0;i<count;i++){
+        const span = document.createElement('span');
+        span.className = 'fh';
+        span.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+        span.style.left = rand(5, 95) + "%";
+        span.style.animationDuration = rand(2.6, 4.2) + "s";
+        span.style.fontSize = rand(16, 28) + "px";
+        floatingHearts.appendChild(span);
+        setTimeout(() => span.remove(), 4800);
+      }
+    }
+
+    yesBtn.addEventListener('click', () => {
+      askScreen.style.display = "none";
+      loveScreen.style.display = "block";
+      popHearts(30);
+    });
+
+    // ✅ Full-screen drifting hearts generator
+    const skyEmojis = ["💖","💗","💘","💞","💕","✨","💓","💝"];
+    function spawnSkyHeart(){
+      const el = document.createElement('div');
+      el.className = 'sky-heart';
+      el.textContent = skyEmojis[Math.floor(Math.random()*skyEmojis.length)];
+
+      const xStart = rand(-10, 110);
+      const xEnd = xStart + rand(-18, 18);
+      const dur = rand(6.5, 12.5);
+      const size = rand(16, 34);
+
+      el.style.fontSize = size + "px";
+      el.style.animationDuration = dur + "s";
+      el.style.setProperty('--xStart', xStart + 'vw');
+      el.style.setProperty('--xEnd', xEnd + 'vw');
+      el.style.setProperty('--r0', rand(-30, 30) + 'deg');
+      el.style.setProperty('--r1', rand(-80, 80) + 'deg');
+      el.style.setProperty('--s', rand(0.75, 1.25));
+      el.style.animationDelay = rand(0, 1.2) + "s";
+
+      skyHearts.appendChild(el);
+      setTimeout(() => el.remove(), (dur + 2) * 1000);
+    }
+
+    function startSkyHearts(){
+      setInterval(() => {
+        spawnSkyHeart();
+        if (Math.random() > 0.55) spawnSkyHeart();
+      }, 650);
+    }
+
+    window.addEventListener('load', () => {
+      setTypewriterChars();
+      startSkyHearts();
+      setButtonStart();
+    });
+
+    window.addEventListener('resize', setButtonStart);
+  </script>
+</body>
+</html>
